@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "sourceMap": false,
+        "removeComments": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "umd",
+        "rootDir": "src",
+        "outDir": "dist"
+    },
+    "compileOnSave": true,
+    "buildOnSave": true,
+    "experimentalDecorators": true,
+    "filesGlob": [
+        "src/**/**.ts",
+        "typings/browser.d.ts"
+    ],
+    "atom": {
+        "rewriteTsconfig": true,
+        "formatOnSave": true
+    },
+    "files": [
+        "src/chartFactory.ts",
+        "src/dataTable.ts",
+        "src/echart-tag.ts",
+        "src/echarts.d.ts",
+        "src/index.ts",
+        "typings/browser.d.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

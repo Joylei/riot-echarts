@@ -1,0 +1,9 @@
+{
+  "name": "riot-echarts",
+  "version": false,
+  "dependencies": {},
+  "devDependencies": {
+    "riot": "https://github.com/Joylei/riot-typed/tree/master/src/riot.d.ts",
+    "riot-typed": "https://github.com/Joylei/riot-typed/tree/master/src/riot-typed.d.ts"
+  }
+}
