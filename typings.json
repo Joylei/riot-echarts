@@ -2,8 +2,8 @@
   "name": "riot-echarts",
   "version": false,
   "dependencies": {},
-  "devDependencies": {
-    "riot": "https://github.com/Joylei/riot-typed/tree/master/src/riot.d.ts",
-    "riot-typed": "https://github.com/Joylei/riot-typed/tree/master/src/riot-typed.d.ts"
+  "globalDevDependencies": {
+    "riot": "github:joylei/riot-typed/src/riot.d.ts#226e2e7a3bd099a4775147487d6deb59613bc317",
+    "riot-typed": "github:joylei/riot-typed/src/riot-typed.d.ts#226e2e7a3bd099a4775147487d6deb59613bc317"
   }
 }

@@ -15,12 +15,7 @@ export default class DataTable {
 
         this.columns = [];
         let columns = data[0] || [];
-        for (let i = 0, len = columns.length; i < len; i++) {
-            this.columns.push({
-                field: columns[i]
-            });
-        }
-
+        columns.forEach(item => this.columns.push({ field: item }))
         this.rows = data.slice(1);
     }
 
@@ -28,11 +23,11 @@ export default class DataTable {
         return this.columns[col];
     }
 
-    getColumnCount() {
+    get columnCount() {
         return this.columns.length;
     }
 
-    getRowCount() {
+    get rowCount() {
         return this.rows.length;
     }
 
@@ -43,20 +38,14 @@ export default class DataTable {
     getValue(row: number, col: number) {
         if (row < 0 || col < 0) return null;
 
-        let item = this.rows[row];
-        if (item) {
-            return item[col];
-        }
-        return null;
+        const item = this.rows[row];
+        return item ? item[col] : null;
     }
 
     setValue(row: number, col: number, val) {
         if (row < 0 || col < 0) return;
 
-        let item = this.rows[row];
-        if (!item) {
-            item = this.rows[row] = [];
-        }
+        const item = this.rows[row] || (this.rows[row] = []);
         item[col] = val;
     }
 
@@ -65,16 +54,10 @@ export default class DataTable {
     * @return {Object[]}
     */
     toJSON(): Object[] {
-        let data = [];
-        if (this.rows.length > 0) {
-            for (let i = 0, len = this.rows.length; i < len; i++) {
-                let row = {};
-                for (let j = 0, jlen = this.columns.length; j < jlen; j++) {
-                    row[this.columns[j].field] = this.rows[i][j];
-                }
-                data.push(row);
-            }
-        }
-        return data;
+        return this.rows.map(row => {
+            const item = {};
+            this.columns.forEach((col, index) => item[col.field] = row[index])
+            return item;
+        });
     }
 }

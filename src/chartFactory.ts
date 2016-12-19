@@ -1,9 +1,9 @@
 import DataTable from './dataTable';
-import *as extend from 'extend';
+import {extend} from './util';
 
 const COLORS = ['#a489d6', '#239afc', '#54d81c', '#5856ce', '#4386a0', '#093084', '#26aabf', '#5a25f9', '#76a0db', '#7588dd', '#f7eb91', '#daf783', '#d321e0', '#7634ef', '#05bc9b', '#cea146', '#ffbfc0', '#5dfc7d', '#ffc9f9', '#9ad5e0', '#8ea4e5', '#490c7f', '#49fcb4', '#20a33c', '#f7ee40', '#fcf63f', '#efef1f', '#f45642', '#e08374', '#30b6ff', '#f75f4f', '#27ddd7', '#af2f49', '#dbc4fc', '#53b220', '#a71dd1', '#15bfa2', '#f79f9e', '#c92427', '#380170', '#ed9f78', '#f464d5', '#dd6158', '#f7cfad', '#36e830', '#80f782', '#90f9ac', '#c69715', '#0a8ed6', '#9ec942', '#f9b1c8', '#a114ff', '#51dba4', '#a4abf2'];
 
-function create(chartType, table, extra) {
+function create(chartType, table, extra?:any) {
     let option = {
         legend: { // legend configuration
             padding: 5, // The inner padding of the legend, in px, defaults to 5. Can be set as array - [top, right, bottom, left].
@@ -69,19 +69,19 @@ function create(chartType, table, extra) {
             end: 100
         }
     };
-    let colCount = table.getColumnCount();
+    const colCount = table.columnCount;
     if (colCount > 1) {
         for (let colIndex = 1; colIndex < colCount; colIndex++) {
-            let colName = table.getColumn(colIndex).field;
+            const colName = table.getColumn(colIndex).field;
             option.legend.data.push(colName);
-            let item = extend({
+            const item = extend({
                 name: colName,
                 type: chartType,
                 data: []
             }, extra);
             option.series.push(item);
         }
-        let rowCount = table.getRowCount();
+        const rowCount = table.rowCount;
         for (let i = 0; i < rowCount; i++) {
             for (let j = 0; j < colCount; j++) {
                 if (j === 0) {
@@ -127,7 +127,7 @@ const factory = {
             data: []
         };
         serie.name = (table.getColumn(0) || {}).field || 'Data';
-        for (let rowIndex = 0, rowCount = table.getRowCount(); rowIndex < rowCount; rowIndex++) {
+        for (let rowIndex = 0, rowCount = table.rowCount; rowIndex < rowCount; rowIndex++) {
             let item = {
                 name: table.getValue(rowIndex, 0) || ('Untitled' + rowIndex),
                 value: table.getValue(rowIndex, 1) || 0

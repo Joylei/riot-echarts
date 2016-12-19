@@ -1,7 +1,6 @@
 import * as DataTable from './dataTable';
 import * as factory from './chartFactory';
-
-import './echart-tag';
+import './echart';
 
 export default {
     DataTable,

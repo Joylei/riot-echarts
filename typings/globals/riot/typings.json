@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/joylei/riot-typed/226e2e7a3bd099a4775147487d6deb59613bc317/src/riot.d.ts",
+    "raw": "github:joylei/riot-typed/src/riot.d.ts#226e2e7a3bd099a4775147487d6deb59613bc317",
+    "typings": "https://raw.githubusercontent.com/joylei/riot-typed/226e2e7a3bd099a4775147487d6deb59613bc317/src/riot.d.ts"
+  }
+}

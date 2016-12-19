@@ -2,18 +2,23 @@
   "name": "riot-echarts",
   "version": "1.0.0",
   "description": "0.1.0",
-  "main": "dist/index.js",
+  "main": "dist/riot-echarts.js",
   "dependencies": {},
   "devDependencies": {
-    "echarts": "^3.1.2",
-    "extend": "^3.0.0",
-    "riot": "^2.3.17",
-    "typescript": "^1.8.7"
+    "echarts": "^3.3.2",
+    "riot": "^3.0.5",
+    "rollup": "^0.37.0",
+    "rollup-plugin-buble": "^0.15.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-plugin-typescript": "^0.8.1",
+    "rollup-plugin-uglify": "^1.0.1",
+    "superstatic": "^4.0.3",
+    "typescript": "^2.1.4"
   },
   "scripts": {
-    "build": "node mode_modules/.bin/tsc -p ./",
-    "clean": "rm -r -f dist/*",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start":"superstatic",
+    "build": "rollup -c && rollup --config rollup.config.minify.js",
+    "clean": "rm -r -f dist/*"
   },
   "repository": {
     "type": "git",
@@ -23,6 +28,7 @@
     "riot",
     "riotjs",
     "riot.js",
+    "chart",
     "charts",
     "echarts",
     "riot-echarts"

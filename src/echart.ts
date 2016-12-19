@@ -1,22 +1,28 @@
 import factory from './chartFactory';
-import * as echarts from 'echarts/dist/echarts'
+import * as echarts from 'echarts'
 import DataTable from './dataTable';
 import * as riot from 'riot';
 
-interface IEchartTag {
+interface IEchartTag extends RiotTag {
     isMounted: boolean;
-    on(events: string, fn?: Function);
-    off(events: string, fn?: Function);
-    update();
     drawChart(data?: any);
     redrawChart();
     destroyChart();
-    chartDiv: HTMLElement;
+    chartHost: HTMLElement;
 }
 
 interface IEchartTagOpts {
+    /**
+     * fetch data
+     */
     fetch?: (cb: (err, data) => any) => any;
+    /**
+     * the chart type to be rendered
+     */
     chart_type: string;
+    /**
+     * provide data directly; otherwise be provided by fetch function
+     */
     data?: DataTable | any[];
 }
 
@@ -31,8 +37,8 @@ const DRAW_DELAY = 500;
    */
 function debounce(fn: Function, delay: number, scope?: any) {
     let timer = null;
-    return function() {
-        let context = scope || this, args = arguments;
+    return function(...args) {
+        let context = scope || this;
         clearTimeout(timer);
         timer = setTimeout(function() {
             fn.apply(context, args);
@@ -40,54 +46,64 @@ function debounce(fn: Function, delay: number, scope?: any) {
     };
 }
 
-riot.tag('echart', '<div class="chart" name="chartDiv" ></div>', function(opts: IEchartTagOpts) {
-    let scope = <IEchartTag>this;
+riot.tag('echart', '<div class="chart" ref="chartHost" ></div>',
+    'echart, echart .chart,[data-is="echart"], [data-is="echart"] .chart {display:block; width:100%; height: 100%;}', 
+    function(opts: IEchartTagOpts) {
+    let self = <IEchartTag>this;
     let chart = null;
 
-    scope.on('mount', () => {
+    Object.defineProperty(self, 'chartHost', {
+        configurable: false,
+        enumerable: false,
+        get(){
+            return self.refs['chartHost']
+        }
+    });
+
+    self.on('mount', () => {
         if (typeof opts.fetch === 'function') {
             opts.fetch((data, err) => {
                 if (err) {
                     console.error(err);
                 } else {
-                    scope.drawChart(data);
+                    self.drawChart(data);
                 }
             });
-        } esle{
-            this.update();
+        } else{
+            self.update();
         }
     });
 
-    scope.on('unmount', () => {
-        scope.destroyChart();
+    self.on('unmount', () => {
+        self.destroyChart();
     });
 
-    scope.on('updated', () => {
+    self.on('updated', () => {
         if (opts.data) {
-            scope.drawChart(opts.data);
+            self.drawChart(opts.data);
         }
     });
 
-    scope.drawChart = debounce((data) => {
-        if (!scope.isMounted) {
+    self.drawChart = debounce((data) => {
+        if (!self.isMounted || !self.chartHost) {
             return;
         }
         if (!chart) {
-            chart = echarts.init(scope.chartDiv);
+            chart = echarts.init(self.chartHost);
         }
-        let chartType = opts.chart_type || 'pie';
-        let option = factory(chartType, data);
+        const chartType = opts.chart_type || 'pie';
+        const option = factory(chartType, data);
         if (option && chart) {
             chart.setOption(option);
         }
     }, DRAW_DELAY);
 
-    scope.redrawChart = () => {
-        scope.destroyChart();
-        scope.update();
+    self.redrawChart = () => {
+        self.destroyChart();
+        self.update();
     };
 
-    scope.destroyChart = () => {
+    self.destroyChart = () => {
         if (chart) {
             chart.despose();
             chart = null;

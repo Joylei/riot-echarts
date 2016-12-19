@@ -1,4 +1,4 @@
-declare module 'echarts/dist/echarts'{
+declare module 'echarts'{
   var echartStatic: {
     init(el:HTMLElement);
     setOption(option:any);
