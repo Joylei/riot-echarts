@@ -1,4 +1,4 @@
-type Field = { field: string };
+type Field = { name: string };
 /**
 * Wrap data array for convinient operations.
 * the first line of the array is columns,
@@ -15,7 +15,7 @@ export default class DataTable {
 
         this.columns = [];
         let columns = data[0] || [];
-        columns.forEach(item => this.columns.push({ field: item }))
+        columns.forEach(item => this.columns.push({ name: item }))
         this.rows = data.slice(1);
     }
 
@@ -56,7 +56,7 @@ export default class DataTable {
     toJSON(): Object[] {
         return this.rows.map(row => {
             const item = {};
-            this.columns.forEach((col, index) => item[col.field] = row[index])
+            this.columns.forEach((col, index) => item[col.name] = row[index])
             return item;
         });
     }

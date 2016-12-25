@@ -1,5 +1,5 @@
-import * as DataTable from './dataTable';
-import * as factory from './chartFactory';
+import DataTable from './dataTable';
+import factory from './chartFactory';
 import './echart';
 
 export default {

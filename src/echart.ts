@@ -2,28 +2,56 @@ import factory from './chartFactory';
 import * as echarts from 'echarts'
 import DataTable from './dataTable';
 import * as riot from 'riot';
+import {isFunction, extend} from './util'
 
 interface IEchartTag extends RiotTag {
     isMounted: boolean;
-    drawChart(data?: any);
+    chart: any;
+    drawChart();
     redrawChart();
     destroyChart();
-    chartHost: HTMLElement;
 }
 
+type Callback = (err, data) => any;
+type DataFunc = () => (DataTable | any[] | Thenable)
+type LazyDataFunc = (cb:Callback)=>any
+type Thenable = { then:(success: (data) => any, error: (err)=>any)=>any }
 interface IEchartTagOpts {
     /**
-     * fetch data
+     * ECharts option
      */
-    fetch?: (cb: (err, data) => any) => any;
-    /**
-     * the chart type to be rendered
-     */
-    chart_type: string;
-    /**
-     * provide data directly; otherwise be provided by fetch function
-     */
-    data?: DataTable | any[];
+    option?: any,
+    simple?: {
+        /**
+         * chart type
+         */
+        type?: string,
+        /**
+         * color sheets;
+         */
+        color?: Array<string>,
+
+        /**
+         * ECharts toolbox options
+         */
+        toolbox?: boolean | Object,
+
+        /**
+         * ECharts dataZoom options
+         */
+        dataZoom?: boolean | Object, 
+        /**
+         * provide data directly; otherwise be provided by function;
+         * the data can be:
+         * - DataTable
+         * - any[][]
+         * - a function returns DataTable or any[][]
+         * - a function returns thenable object
+         * - a thenable object
+         * - a function accept a callback to handle data 
+         */
+        data?: DataTable | any[] | Thenable | DataFunc | LazyDataFunc;
+    }
 }
 
 const DRAW_DELAY = 500;
@@ -51,50 +79,82 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>',
     function(opts: IEchartTagOpts) {
     let self = <IEchartTag>this;
     let chart = null;
-
-    Object.defineProperty(self, 'chartHost', {
-        configurable: false,
-        enumerable: false,
+    
+    Object.defineProperty(self, 'chart', {
         get(){
-            return self.refs['chartHost']
+            return chart
         }
-    });
+    })
 
+    function getHost(){
+        //compatible with riot@2.x.x
+        return self.refs['chartHost'] || self.root.querySelector('[.chart]')
+    }
+
+    let _chartHost:HTMLElement
+    let _option = {}
     self.on('mount', () => {
-        if (typeof opts.fetch === 'function') {
-            opts.fetch((data, err) => {
-                if (err) {
-                    console.error(err);
-                } else {
-                    self.drawChart(data);
-                }
-            });
-        } else{
-            self.update();
+        if(!echarts || !isFunction(echarts.init)){
+            throw new Error('please import ECharts!!!')
         }
+
+        _chartHost = <HTMLElement>getHost();
+        self.drawChart()
     });
 
     self.on('unmount', () => {
         self.destroyChart();
     });
 
-    self.on('updated', () => {
-        if (opts.data) {
-            self.drawChart(opts.data);
-        }
-    });
+    self.on('updated', ()=>{
+        self.drawChart()
+    })
 
-    self.drawChart = debounce((data) => {
-        if (!self.isMounted || !self.chartHost) {
+    self.drawChart = debounce(() => {
+        if (!self.isMounted || !_chartHost) {
             return;
         }
         if (!chart) {
-            chart = echarts.init(self.chartHost);
+            chart = echarts.init(_chartHost);
         }
-        const chartType = opts.chart_type || 'pie';
-        const option = factory(chartType, data);
-        if (option && chart) {
-            chart.setOption(option);
+        if(opts.option){
+            chart.setOption(opts.option);
+            return
+        }
+        if(opts.simple){
+            const chartType = opts.simple.type || 'pie';
+            chart.showLoading()
+            const cb = (err, data)=>{
+                if(err){
+                    console.error(err);
+                    return
+                }
+                if(data && isFunction(data.then)) {
+                    data.then(d => cb(null,d), cb)
+                    return
+                }
+                let chartObj = extend({},opts.simple)
+                chartObj.data = data
+                const option = factory(chartObj);
+                if (option && chart) {
+                    chart.setOption(option);
+                }
+                chart.hideLoading()
+            };
+            let data;
+            if(isFunction(opts.simple.data)){
+                let result = (<any>opts.simple.data).call(null, cb)
+                if(!result) {
+                    return
+                }
+                data = result
+            }
+            data = data || opts.simple.data
+            if(data){
+                cb(null, data)
+            }else{
+                chart.hideLoading()
+            }
         }
     }, DRAW_DELAY);
 
@@ -110,3 +170,14 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>',
         }
     };
 });
+
+//hook window resize event
+window.addEventListener('resize', debounce(function(e){
+    let charts = [].slice.call(document.querySelectorAll('echart, [data-is="echart"]'))
+    charts.forEach(el =>{
+        let tag = <IEchartTag>el._tag
+        if(tag && tag.chart){
+            tag.chart.resize()
+        }
+    })
+}, 300))

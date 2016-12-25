@@ -15,7 +15,7 @@ var DataTable = function DataTable(data) {
     data = data || [];
     this.columns = [];
     var columns = data[0] || [];
-    columns.forEach(function (item) { return this$1.columns.push({ field: item }); });
+    columns.forEach(function (item) { return this$1.columns.push({ name: item }); });
     this.rows = data.slice(1);
 };
 
@@ -53,17 +53,12 @@ DataTable.prototype.toJSON = function toJSON () {
 
     return this.rows.map(function (row) {
         var item = {};
-        this$1.columns.forEach(function (col, index) { return item[col.field] = row[index]; });
+        this$1.columns.forEach(function (col, index) { return item[col.name] = row[index]; });
         return item;
     });
 };
 
 Object.defineProperties( DataTable.prototype, prototypeAccessors );
-
-
-var DataTable$2 = Object.freeze({
-	default: DataTable
-});
 
 function extend(dest, src) {
     if ( src === void 0 ) src = {};
@@ -74,41 +69,67 @@ function extend(dest, src) {
     });
     return obj;
 }
+function isFunction(obj) {
+    return typeof obj === 'function';
+}
 
 var COLORS = ['#a489d6', '#239afc', '#54d81c', '#5856ce', '#4386a0', '#093084', '#26aabf', '#5a25f9', '#76a0db', '#7588dd', '#f7eb91', '#daf783', '#d321e0', '#7634ef', '#05bc9b', '#cea146', '#ffbfc0', '#5dfc7d', '#ffc9f9', '#9ad5e0', '#8ea4e5', '#490c7f', '#49fcb4', '#20a33c', '#f7ee40', '#fcf63f', '#efef1f', '#f45642', '#e08374', '#30b6ff', '#f75f4f', '#27ddd7', '#af2f49', '#dbc4fc', '#53b220', '#a71dd1', '#15bfa2', '#f79f9e', '#c92427', '#380170', '#ed9f78', '#f464d5', '#dd6158', '#f7cfad', '#36e830', '#80f782', '#90f9ac', '#c69715', '#0a8ed6', '#9ec942', '#f9b1c8', '#a114ff', '#51dba4', '#a4abf2'];
-function create(chartType, table, extra) {
+function addToolbox(option) {
+    option.toolbox = {
+        show: true,
+        feature: {
+            magicType: {
+                type: ['line', 'bar', 'stack'],
+                title: {
+                    'line': 'Line Chart',
+                    'bar': 'Column Chart',
+                    'stack': 'Stacked Bar Chart'
+                }
+            },
+            restore: {
+                title: 'Restore'
+            },
+            saveAsImage: {
+                title: 'Save AS Image'
+            },
+        }
+    };
+}
+function addRoom(option) {
+    option.dataZoom = {
+        show: true,
+        realtime: true,
+        //dataBackgroundColor: "#80D9C3",
+        handleColor: '#018564',
+        fillerColor: '#80D9C3',
+        handleSize: 3,
+        //y : 'bottom',
+        height: 20,
+        start: 50,
+        end: 100
+    };
+}
+function create(ref) {
+    var type = ref.type;
+    var table = ref.table;
+    var color = ref.color;
+    var dataZoom = ref.dataZoom;
+    var toolbox = ref.toolbox;
+
     var option = {
         legend: {
-            padding: 5,
-            itemGap: 10,
-            data: []
+            //padding: 5, // The inner padding of the legend, in px, defaults to 5. Can be set as array - [top, right, bottom, left].
+            //itemGap: 10, // The pixel gap between each item in the legend. It is horizontal in a legend with horizontal layout, and vertical in a legend with vertical layout.
+            data: [],
+            align: 'left'
         },
         tooltip: {
             trigger: 'item',
         },
-        toolbox: {
-            show: true,
-            feature: {
-                magicType: {
-                    type: ['line', 'bar', 'stack'],
-                    title: {
-                        'line': 'Line Chart',
-                        'bar': 'Column Chart',
-                        'stack': 'Stacked Bar Chart'
-                    }
-                },
-                restore: {
-                    title: 'Restore'
-                },
-                saveAsImage: {
-                    title: 'Save AS Image'
-                },
-            }
-        },
         xAxis: [
             {
                 type: 'category',
-                boundaryGap: false,
+                boundaryGap: true,
                 axisLabel: {
                     show: true,
                     interval: 'auto',
@@ -122,36 +143,22 @@ function create(chartType, table, extra) {
         yAxis: [
             {
                 type: 'value',
-                boundaryGap: [0.1, 0.1],
             }
         ],
         series: [],
-        color: COLORS,
+        color: color,
         calculable: false,
-        dataZoom: {
-            show: true,
-            realtime: true,
-            //dataBackgroundColor: "#80D9C3",
-            handleColor: '#018564',
-            fillerColor: '#80D9C3',
-            handleSize: 3,
-            //y : 'bottom',
-            height: 20,
-            start: 50,
-            end: 100
-        }
     };
     var colCount = table.columnCount;
     if (colCount > 1) {
         for (var colIndex = 1; colIndex < colCount; colIndex++) {
-            var colName = table.getColumn(colIndex).field;
+            var colName = table.getColumn(colIndex).name;
             option.legend.data.push(colName);
-            var item = extend({
+            option.series.push({
                 name: colName,
-                type: chartType,
+                type: type,
                 data: []
-            }, extra);
-            option.series.push(item);
+            });
         }
         var rowCount = table.rowCount;
         for (var i = 0; i < rowCount; i++) {
@@ -165,63 +172,69 @@ function create(chartType, table, extra) {
             }
         }
     }
+    if (toolbox === true) {
+        addToolbox(option);
+    }
+    else if (toolbox) {
+        option.toolbox = toolbox;
+    }
+    if (dataZoom === true) {
+        addRoom(option);
+    }
+    else if (dataZoom) {
+        option.dataZoom = dataZoom;
+    }
     return option;
 }
 var factory = {
-    'line': function (table) {
-        return create('line', table);
+    'line': function (obj) {
+        return create(obj);
     },
-    'bar': function (table) {
-        return create('bar', table, {
-            barMaxWidth: 25,
-            label: {
-                normal: {
-                    show: true,
-                    position: 'outside'
+    'bar': function (obj) {
+        var option = create(obj);
+        option.series.forEach(function (serie) {
+            extend(serie, {
+                barMaxWidth: 30,
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'outside'
+                    }
                 }
-            }
+            });
         });
+        return option;
     },
-    'pie': function (table) {
-        var option = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b} : {c} ({d}%)'
-            },
-            series: [],
-            color: COLORS
-        };
-        var serie = {
-            name: 'Data',
-            type: 'pie',
-            radius: '55%',
-            center: ['50%', '50%'],
-            data: []
-        };
-        serie.name = (table.getColumn(0) || {}).field || 'Data';
-        for (var rowIndex = 0, rowCount = table.rowCount; rowIndex < rowCount; rowIndex++) {
-            var item = {
-                name: table.getValue(rowIndex, 0) || ('Untitled' + rowIndex),
-                value: table.getValue(rowIndex, 1) || 0
-            };
-            serie.data.push(item);
+    'pie': function (obj) {
+        var option = create(obj);
+        option.tooltip.formatter = '{a} <br/>{b} : {c} ({d}%)';
+        var serie = option.series[0];
+        if (serie) {
+            extend(serie, {
+                radius: '55%',
+                center: ['50%', '50%'],
+                data: []
+            });
         }
-        option.series.push(serie);
         return option;
     }
 };
-function createChartOption(chartType, data) {
-    var fn = factory[chartType];
+function createChartOption(ref) {
+    var type = ref.type;
+    var data = ref.data;
+    var color = ref.color; if ( color === void 0 ) color = COLORS;
+    var dataZoom = ref.dataZoom;
+    var toolbox = ref.toolbox;
+
+    var fn = factory[type];
     if (fn) {
         var table = data instanceof DataTable ? data : new DataTable(data);
-        return fn(table);
+        return fn({ type: type, table: table, color: color, dataZoom: dataZoom, toolbox: toolbox });
+    }
+    else {
+        throw new Error('unsupported chart type in simple mode, please use option directly');
     }
 }
-
-
-var factory$1 = Object.freeze({
-	default: createChartOption
-});
 
 var DRAW_DELAY = 500;
 /**
@@ -248,47 +261,76 @@ function debounce(fn, delay, scope) {
 riot.tag('echart', '<div class="chart" ref="chartHost" ></div>', 'echart, echart .chart,[data-is="echart"], [data-is="echart"] .chart {display:block; width:100%; height: 100%;}', function (opts) {
     var self = this;
     var chart = null;
-    Object.defineProperty(self, 'chartHost', {
-        configurable: false,
-        enumerable: false,
+    Object.defineProperty(self, 'chart', {
         get: function get() {
-            return self.refs['chartHost'];
+            return chart;
         }
     });
+    function getHost() {
+        //compatible with riot@2.x.x
+        return self.refs['chartHost'] || self.root.querySelector('[.chart]');
+    }
+    var _chartHost;
+    var _option = {};
     self.on('mount', function () {
-        if (typeof opts.fetch === 'function') {
-            opts.fetch(function (data, err) {
-                if (err) {
-                    console.error(err);
-                }
-                else {
-                    self.drawChart(data);
-                }
-            });
+        if (!echarts || !isFunction(echarts.init)) {
+            throw new Error('please import ECharts!!!');
         }
-        else {
-            self.update();
-        }
+        _chartHost = getHost();
+        self.drawChart();
     });
     self.on('unmount', function () {
         self.destroyChart();
     });
     self.on('updated', function () {
-        if (opts.data) {
-            self.drawChart(opts.data);
-        }
+        self.drawChart();
     });
-    self.drawChart = debounce(function (data) {
-        if (!self.isMounted || !self.chartHost) {
+    self.drawChart = debounce(function () {
+        if (!self.isMounted || !_chartHost) {
             return;
         }
         if (!chart) {
-            chart = echarts.init(self.chartHost);
+            chart = echarts.init(_chartHost);
         }
-        var chartType = opts.chart_type || 'pie';
-        var option = createChartOption(chartType, data);
-        if (option && chart) {
-            chart.setOption(option);
+        if (opts.option) {
+            chart.setOption(opts.option);
+            return;
+        }
+        if (opts.simple) {
+            var chartType = opts.simple.type || 'pie';
+            chart.showLoading();
+            var cb = function (err, data) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                if (data && isFunction(data.then)) {
+                    data.then(function (d) { return cb(null, d); }, cb);
+                    return;
+                }
+                var chartObj = extend({}, opts.simple);
+                chartObj.data = data;
+                var option = createChartOption(chartObj);
+                if (option && chart) {
+                    chart.setOption(option);
+                }
+                chart.hideLoading();
+            };
+            var data;
+            if (isFunction(opts.simple.data)) {
+                var result = opts.simple.data.call(null, cb);
+                if (!result) {
+                    return;
+                }
+                data = result;
+            }
+            data = data || opts.simple.data;
+            if (data) {
+                cb(null, data);
+            }
+            else {
+                chart.hideLoading();
+            }
         }
     }, DRAW_DELAY);
     self.redrawChart = function () {
@@ -302,10 +344,20 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>', 'echart, echart
         }
     };
 });
+//hook window resize event
+window.addEventListener('resize', debounce(function (e) {
+    var charts = [].slice.call(document.querySelectorAll('echart, [data-is="echart"]'));
+    charts.forEach(function (el) {
+        var tag$$1 = el._tag;
+        if (tag$$1 && tag$$1.chart) {
+            tag$$1.chart.resize();
+        }
+    });
+}, 300));
 
 var index = {
-    DataTable: DataTable$2,
-    factory: factory$1
+    DataTable: DataTable,
+    factory: createChartOption
 };
 
 return index;

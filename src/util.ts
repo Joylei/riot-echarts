@@ -5,3 +5,7 @@ export function extend(dest, src = {}){
     });
     return obj;
 }
+
+export function isFunction(obj){
+    return typeof obj === 'function'
+}
