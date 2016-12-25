@@ -1,7 +1,7 @@
 {
   "name": "riot-echarts",
   "version": "1.0.0",
-  "description": "0.1.0",
+  "description": "a no-brainer riot tag to display charts easily with Baidu ECharts, like Google Chart does.",
   "main": "dist/riot-echarts.js",
   "dependencies": {},
   "devDependencies": {
@@ -33,7 +33,10 @@
     "echarts",
     "riot-echarts"
   ],
-  "author": "joylei <leingliu@gmail.com>",
+  "author": {
+    "name":"joylei",
+    "email": "leingliu@gmail.com"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Joylei/riot-echarts/issues"
