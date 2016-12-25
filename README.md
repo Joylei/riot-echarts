@@ -2,21 +2,41 @@
 
 a no-brainer riot tag to display charts easily with [Baidu ECharts](https://github.com/ecomfe/echarts), like Google Chart does.
 
+![riot-echarts demo](./demo.jpg)
+
 ## usage
+
+import ECharts or use CDN
+
+```sh
+https://cdn.bootcss.com/echarts/3.3.2/echarts.min.js
+```
+
+install riot-echarts
+```sh
+npm install riot-echarts --save
+```
+
+import riot-echarts
+```js
+import 'riot-echarts'
+```
 
 ```html
 <app>
     <p>chart</p>
-    <echart chart_type="{ 'pie' }" data="{ data }"></echart>
+    <echart simple="{ option }"></echart>
     <script>
-        this.data = [
-            ['name', 'value'],
-            ['a', 10],
-            ['b', 20],
-            ['c', 25],
-            ['d', 15],
-            ['e', 55]
-        ]
+        this.option = {type:'pie',
+            data: [
+                ['name', 'value'],
+                ['a', 10],
+                ['b', 20],
+                ['c', 25],
+                ['d', 15],
+                ['e', 55]
+            ]
+        }
     </script>
     <style>
         echart {
@@ -27,6 +47,8 @@ a no-brainer riot tag to display charts easily with [Baidu ECharts](https://gith
     </style>
 </app>
 ```
+
+Note: the container of charts must have a fixed height and width before chart rendering.
 
 For more information, see example.
 
