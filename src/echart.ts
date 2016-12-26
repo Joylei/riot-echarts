@@ -123,7 +123,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>',
         }
         if(opts.simple){
             const chartType = opts.simple.type || 'pie';
-            chart.showLoading()
+            chart && chart.showLoading()
             const cb = (err, data)=>{
                 if(err){
                     console.error(err);
@@ -139,7 +139,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>',
                 if (option && chart) {
                     chart.setOption(option);
                 }
-                chart.hideLoading()
+                chart && chart.hideLoading()
             };
             let data;
             if(isFunction(opts.simple.data)){
@@ -153,7 +153,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>',
             if(data){
                 cb(null, data)
             }else{
-                chart.hideLoading()
+                chart && chart.hideLoading()
             }
         }
     }, DRAW_DELAY);

@@ -298,7 +298,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>', 'echart, echart
         }
         if (opts.simple) {
             var chartType = opts.simple.type || 'pie';
-            chart.showLoading();
+            chart && chart.showLoading();
             var cb = function (err, data) {
                 if (err) {
                     console.error(err);
@@ -314,7 +314,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>', 'echart, echart
                 if (option && chart) {
                     chart.setOption(option);
                 }
-                chart.hideLoading();
+                chart && chart.hideLoading();
             };
             var data;
             if (isFunction(opts.simple.data)) {
@@ -329,7 +329,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>', 'echart, echart
                 cb(null, data);
             }
             else {
-                chart.hideLoading();
+                chart && chart.hideLoading();
             }
         }
     }, DRAW_DELAY);
