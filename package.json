@@ -1,6 +1,6 @@
 {
   "name": "riot-echarts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a no-brainer riot tag to display charts easily with Baidu ECharts, like Google Chart does.",
   "main": "dist/riot-echarts.js",
   "dependencies": {},
