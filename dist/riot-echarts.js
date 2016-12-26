@@ -339,7 +339,7 @@ riot.tag('echart', '<div class="chart" ref="chartHost" ></div>', 'echart, echart
     };
     self.destroyChart = function () {
         if (chart) {
-            chart.despose();
+            chart.dispose();
             chart = null;
         }
     };
